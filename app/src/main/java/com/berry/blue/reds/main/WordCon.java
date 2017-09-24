@@ -32,7 +32,7 @@ public class WordCon {
         ValueEventListener postListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snap) {
-                long wordNum = ThreadLocalRandom.current().nextLong(snap.getChildrenCount() + 1);
+                long wordNum = ThreadLocalRandom.current().nextLong(snap.getChildrenCount());
                 Iterator<DataSnapshot> itr = snap.getChildren().iterator();
 
                 for (long i = 0; i < wordNum; i++) {
