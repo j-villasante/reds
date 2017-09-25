@@ -10,10 +10,12 @@ import android.nfc.tech.NfcA;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.berry.blue.reds.game.Game;
 import com.berry.blue.reds.main.ViewStartI;
 import com.berry.blue.reds.main.Word;
 import com.berry.blue.reds.main.WordCon;
@@ -25,21 +27,39 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class Start extends Activity implements ViewStartI {
+    // View binding
     @BindView(R.id.fullscreen_content) View mContentView;
     @BindView(R.id.rla_play_layout) View mPlayLayout;
     @BindView(R.id.main_word_view) TextView tviWord;
 
+    // Fullscreen variables
     private final Handler mHideHandler = new Handler();
-    private WordCon controller = WordCon.getInstance(this);
-
     private final Runnable mHideRunnable = this::hide;
+
+    // Controllers
+    private WordCon wordControl = WordCon.instance(this);
+    private Game game = Game.instance();
+
+    // Click and touch variables
     private View.OnClickListener startClickListener = (View view) -> {
         this.mPlayLayout.setVisibility(View.GONE);
-        this.controller.getRandomWord();
-        this.isPlaying = true;
+        this.wordControl.getRandomWord();
+        this.game.startFindObject();
         this.enableNfcRead();
     };
-    private boolean isPlaying = false;
+    private Handler playTouchHandler = new Handler();
+    private Runnable longStartClickHandler = () -> {
+        this.mPlayLayout.setVisibility(View.GONE);
+        this.game.startLearnWords();
+        this.enableNfcRead();
+    };
+    private View.OnTouchListener startTouchListener = (View v, MotionEvent e) -> {
+        if(e.getAction() == MotionEvent.ACTION_DOWN)
+            playTouchHandler.postDelayed(longStartClickHandler, 1000);
+        if((e.getAction() == MotionEvent.ACTION_MOVE)||(e.getAction() == MotionEvent.ACTION_UP))
+            playTouchHandler.removeCallbacks(longStartClickHandler);
+        return true;
+    };
 
     // NFC variables
     private NfcAdapter mNfcAdapter;
@@ -55,19 +75,11 @@ public class Start extends Activity implements ViewStartI {
         setContentView(R.layout.activity_start);
         ButterKnife.bind(this);
 
-        mPlayLayout.setOnClickListener(this.startClickListener);
+        // mPlayLayout.setOnClickListener(this.startClickListener);
+        mPlayLayout.setOnTouchListener(this.startTouchListener);
 
-        // NFC initiation
-        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-        IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
-        try {
-            ndef.addDataType("*/*");
-        }catch (MalformedMimeTypeException e) {
-            throw new RuntimeException("fail", e);
-        }
-        mFilters = new IntentFilter[] {ndef, };
-        mTechLists = new String[][] { new String[] { NfcA.class.getName() } };
+        this.nfcInit();
+        this.game.init();
     }
 
     @Override
@@ -79,7 +91,7 @@ public class Start extends Activity implements ViewStartI {
     @Override
     protected void onResume() {
         super.onResume();
-        if (isPlaying) {
+        if (game.hasStarted()) {
             this.enableNfcRead();
         }
     }
@@ -93,7 +105,16 @@ public class Start extends Activity implements ViewStartI {
     @Override
     protected void onNewIntent(Intent intent) {
         ArrayList<String> messages = TagControl.readTag(intent);
-        this.controller.handleTagScan(messages.get(0));
+        if (game.isFindObject()) {
+            if (this.wordControl.isActualWord(messages.get(0))) {
+                wordControl.getRandomWord();
+            } else {
+                this.showMessage("Palabra incorrecta");
+            }
+        }
+        else if (game.isLearnWords()) {
+            this.wordControl.getWord(messages.get(0));
+        }
     }
 
     @Override
@@ -109,6 +130,19 @@ public class Start extends Activity implements ViewStartI {
     @Override
     public void showMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void nfcInit() {
+        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
+        try {
+            ndef.addDataType("*/*");
+        }catch (MalformedMimeTypeException e) {
+            throw new RuntimeException("fail", e);
+        }
+        mFilters = new IntentFilter[] {ndef, };
+        mTechLists = new String[][] { new String[] { NfcA.class.getName() } };
     }
 
     private void enableNfcRead() {
