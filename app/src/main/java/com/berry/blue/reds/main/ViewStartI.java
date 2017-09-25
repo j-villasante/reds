@@ -1,6 +1,8 @@
 package com.berry.blue.reds.main;
 
-public interface ViewStartI {
+import com.berry.blue.reds.interfaces.ViewStandardI;
+
+public interface ViewStartI extends ViewStandardI {
     void onWordObtained(Word word);
     void onValueError(String message);
 }

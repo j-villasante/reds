@@ -1,16 +1,20 @@
 package com.berry.blue.reds.nfcUtil;
 
+import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.MifareUltralight;
 import android.os.Parcelable;
 import android.util.Log;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 
-public class MifareCon {
-    private static final String TAG = MifareCon.class.getSimpleName();
+public class TagControl {
+    private static final String TAG = TagControl.class.getSimpleName();
 
     public static void writeTag(Tag tag, String tagText) {
         MifareUltralight ultralight = MifareUltralight.get(tag);
@@ -31,14 +35,23 @@ public class MifareCon {
         }
     }
 
-    public static NdefMessage[] readTag(Parcelable[] rawMsgs) {
-        NdefMessage[] msgs = null;
-        if (rawMsgs != null) {
-            msgs = new NdefMessage[rawMsgs.length];
-            for (int i = 0; i < rawMsgs.length; i++) {
-                msgs[i] = (NdefMessage) rawMsgs[i];
+    public static ArrayList<String> readTag(Intent nfcDataIntent) {
+        Parcelable[] messages = nfcDataIntent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+
+        ArrayList<String> resultMap;
+        if (messages != null) {
+            resultMap = new ArrayList<>(messages.length);
+        } else {
+            return new ArrayList<>();
+        }
+
+        for (Parcelable message : messages) {
+            for (NdefRecord record : ((NdefMessage) message).getRecords()) {
+                byte[] payload = record.getPayload();
+                resultMap.add(new String(payload, 3, payload.length - 3, Charset.forName("UTF-8")).trim());
             }
         }
-        return msgs;
+
+        return resultMap;
     }
 }

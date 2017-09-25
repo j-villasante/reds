@@ -1,5 +1,7 @@
 package com.berry.blue.reds.main;
 
+import android.util.Log;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -12,8 +14,11 @@ import java.util.concurrent.ThreadLocalRandom;
 public class WordCon {
     private ViewStartI view;
     private DatabaseReference reference;
+    private Word actualWord;
 
     private static WordCon instance;
+
+    private final String WORD_CONTR = this.getClass().getSimpleName();
 
     private WordCon(ViewStartI view) {
         this.view = view;
@@ -28,7 +33,6 @@ public class WordCon {
     }
 
     public void getRandomWord() {
-        System.out.print("herre");
         ValueEventListener postListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snap) {
@@ -41,6 +45,8 @@ public class WordCon {
                 DataSnapshot item = itr.next();
                 Word word = item.getValue(Word.class);
                 if (word != null) word.key = item.getKey();
+                actualWord = word;
+                Log.i(WORD_CONTR, word.key);
                 view.onWordObtained(word);
             }
 
@@ -50,5 +56,13 @@ public class WordCon {
             }
         };
         this.reference.addListenerForSingleValueEvent(postListener);
+    }
+
+    public void handleTagScan(String key) {
+        if (this.actualWord.key.equals(key)) {
+            this.getRandomWord();
+        } else {
+            this.view.showMessage("Palabra incorrecta");
+        }
     }
 }

@@ -4,14 +4,11 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.nfc.NdefMessage;
-import android.nfc.NfcAdapter;
 import android.content.IntentFilter.MalformedMimeTypeException;
-import android.nfc.Tag;
-import android.nfc.tech.MifareUltralight;
+import android.nfc.NfcAdapter;
+import android.nfc.tech.NfcA;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -20,7 +17,9 @@ import android.widget.Toast;
 import com.berry.blue.reds.main.ViewStartI;
 import com.berry.blue.reds.main.Word;
 import com.berry.blue.reds.main.WordCon;
-import com.berry.blue.reds.nfcUtil.MifareCon;
+import com.berry.blue.reds.nfcUtil.TagControl;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,14 +36,18 @@ public class Start extends Activity implements ViewStartI {
     private View.OnClickListener startClickListener = (View view) -> {
         this.mPlayLayout.setVisibility(View.GONE);
         this.controller.getRandomWord();
+        this.isPlaying = true;
         this.enableNfcRead();
     };
+    private boolean isPlaying = false;
 
     // NFC variables
     private NfcAdapter mNfcAdapter;
     private PendingIntent mPendingIntent;
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
+
+    private static final String TAG = TagControl.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +67,7 @@ public class Start extends Activity implements ViewStartI {
             throw new RuntimeException("fail", e);
         }
         mFilters = new IntentFilter[] {ndef, };
-        mTechLists = new String[][] { new String[] { MifareUltralight.class.getName() } };
+        mTechLists = new String[][] { new String[] { NfcA.class.getName() } };
     }
 
     @Override
@@ -74,12 +77,23 @@ public class Start extends Activity implements ViewStartI {
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
-        Parcelable[] tagFromIntent = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-        NdefMessage[] message = MifareCon.readTag(tagFromIntent);
-        for (NdefMessage aMessage : message) {
-            Log.i(this.getClass().getSimpleName(), aMessage.toString());
+    protected void onResume() {
+        super.onResume();
+        if (isPlaying) {
+            this.enableNfcRead();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        this.disableNfcRead();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        ArrayList<String> messages = TagControl.readTag(intent);
+        this.controller.handleTagScan(messages.get(0));
     }
 
     @Override
@@ -92,9 +106,14 @@ public class Start extends Activity implements ViewStartI {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void showMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
     private void enableNfcRead() {
         mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
-        Toast.makeText(this, "NFC read enabled", Toast.LENGTH_SHORT).show();
+        Log.i(TAG, "NFC read enabled");
     }
 
     private void disableNfcRead() {
