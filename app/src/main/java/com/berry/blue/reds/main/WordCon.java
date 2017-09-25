@@ -2,10 +2,10 @@ package com.berry.blue.reds.main;
 
 import android.util.Log;
 
+import com.berry.blue.reds.RedDb;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Iterator;
@@ -18,14 +18,14 @@ public class WordCon {
 
     private static WordCon instance;
 
-    private final String WORD_CONTR = this.getClass().getSimpleName();
+    private final String TAG = this.getClass().getSimpleName();
 
     private WordCon(ViewStartI view) {
         this.view = view;
-        this.reference = FirebaseDatabase.getInstance().getReference("words");
+        this.reference = RedDb.instance().getDatabase().getReference("words");
     }
 
-    public static WordCon getInstance(ViewStartI view) {
+    public static WordCon instance(ViewStartI view) {
         if (instance == null) {
             instance = new WordCon(view);
         }
@@ -33,7 +33,7 @@ public class WordCon {
     }
 
     public void getRandomWord() {
-        ValueEventListener postListener = new ValueEventListener() {
+        ValueEventListener listener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snap) {
                 long wordNum = ThreadLocalRandom.current().nextLong(snap.getChildrenCount());
@@ -44,10 +44,14 @@ public class WordCon {
                 }
                 DataSnapshot item = itr.next();
                 Word word = item.getValue(Word.class);
-                if (word != null) word.key = item.getKey();
-                actualWord = word;
-                Log.i(WORD_CONTR, word.key);
-                view.onWordObtained(word);
+                if (word != null) {
+                    word.key = item.getKey();
+                    actualWord = word;
+                    Log.i(TAG, word.key);
+                    view.onWordObtained(word);
+                } else {
+                    view.showMessage("Error");
+                }
             }
 
             @Override
@@ -55,14 +59,32 @@ public class WordCon {
                 view.onValueError(databaseError.getMessage());
             }
         };
-        this.reference.addListenerForSingleValueEvent(postListener);
+        this.reference.addListenerForSingleValueEvent(listener);
     }
 
-    public void handleTagScan(String key) {
-        if (this.actualWord.key.equals(key)) {
-            this.getRandomWord();
-        } else {
-            this.view.showMessage("Palabra incorrecta");
-        }
+    public void getWord(String key) {
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snap) {
+                Word word = snap.getValue(Word.class);
+                if (word != null){
+                    word.key = snap.getKey();
+                    Log.i(TAG, word.name);
+                    view.onWordObtained(word);
+                } else {
+                    view.showMessage("El tag no esta registrado");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                view.onValueError(databaseError.getMessage());
+            }
+        };
+        this.reference.child(key).addListenerForSingleValueEvent(listener);
+    }
+
+    public boolean isActualWord(String key) {
+        return this.actualWord.key.equals(key);
     }
 }

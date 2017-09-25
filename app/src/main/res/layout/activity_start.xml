@@ -5,7 +5,7 @@
     android:background="#0099cc"
     android:id="@+id/fullscreen_content"
     tools:context="com.berry.blue.reds.Start">
-    <RelativeLayout
+    <Button
         android:id="@+id/rla_play_layout"
         android:layout_width="300dp"
         android:layout_height="300dp"
