@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.berry.blue.reds.game.Game;
 import com.berry.blue.reds.main.ViewStartI;
 import com.berry.blue.reds.main.Word;
@@ -31,6 +32,7 @@ public class Start extends Activity implements ViewStartI {
     @BindView(R.id.fullscreen_content) View mContentView;
     @BindView(R.id.rla_play_layout) View mPlayLayout;
     @BindView(R.id.main_word_view) TextView tviWord;
+    @BindView(R.id.animation_view) LottieAnimationView starAnimationView;
 
     // Fullscreen variables
     private final Handler mHideHandler = new Handler();
@@ -75,8 +77,8 @@ public class Start extends Activity implements ViewStartI {
         setContentView(R.layout.activity_start);
         ButterKnife.bind(this);
 
-        // mPlayLayout.setOnClickListener(this.startClickListener);
-        mPlayLayout.setOnTouchListener(this.startTouchListener);
+        mPlayLayout.setOnClickListener(this.startClickListener);
+        // mPlayLayout.setOnTouchListener(this.startTouchListener);
 
         this.nfcInit();
         this.game.init();
@@ -107,9 +109,9 @@ public class Start extends Activity implements ViewStartI {
         ArrayList<String> messages = TagControl.readTag(intent);
         if (game.isFindObject()) {
             if (this.wordControl.isActualWord(messages.get(0))) {
-                wordControl.getRandomWord();
+                this.startGameAnimation("favourite_app_icon.json", wordControl::getRandomWord);
             } else {
-                this.showMessage("Palabra incorrecta");
+                this.startGameAnimation("x_pop.json", null);
             }
         }
         else if (game.isLearnWords()) {
@@ -152,6 +154,20 @@ public class Start extends Activity implements ViewStartI {
 
     private void disableNfcRead() {
         mNfcAdapter.disableForegroundDispatch(this);
+    }
+
+    private void startGameAnimation(String animationFile, Runnable onAnimationFinished) {
+        starAnimationView.setVisibility(View.VISIBLE);
+        tviWord.setVisibility(View.GONE);
+        starAnimationView.setAnimation(animationFile);
+        starAnimationView.playAnimation();
+        starAnimationView.addAnimatorUpdateListener((animation) -> {
+            if (starAnimationView.getProgress() == 1) {
+                starAnimationView.setVisibility(View.GONE);
+                tviWord.setVisibility(View.VISIBLE);
+                if (onAnimationFinished != null) onAnimationFinished.run();
+            }
+        });
     }
 
     private void hide() {
