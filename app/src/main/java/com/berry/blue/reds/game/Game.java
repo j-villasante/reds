@@ -51,6 +51,7 @@ public class Game {
 
     public void startFindObject() {
         this.status = this.FIND_OBJECT;
+        
     }
 
     public void startLearnWords() {

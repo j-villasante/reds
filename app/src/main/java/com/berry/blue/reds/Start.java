@@ -1,5 +1,7 @@
 package com.berry.blue.reds;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -12,6 +14,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -93,6 +96,7 @@ public class Start extends Activity implements ViewStartI {
     @Override
     protected void onResume() {
         super.onResume();
+        mHideHandler.postDelayed(mHideRunnable, 500);
         if (game.hasStarted()) {
             this.enableNfcRead();
         }
@@ -108,10 +112,12 @@ public class Start extends Activity implements ViewStartI {
     protected void onNewIntent(Intent intent) {
         ArrayList<String> messages = TagControl.readTag(intent);
         if (game.isFindObject()) {
+            tviWord.setVisibility(View.INVISIBLE);
             if (this.wordControl.isActualWord(messages.get(0))) {
-                this.startGameAnimation("favourite_app_icon.json", wordControl::getRandomWord);
+                wordControl.getRandomWord();
+                this.startGameAnimation("favourite_app_icon.json", () -> tviWord.setVisibility(View.VISIBLE));
             } else {
-                this.startGameAnimation("x_pop.json", null);
+                this.startGameAnimation("x_pop.json", () -> tviWord.setVisibility(View.VISIBLE));
             }
         }
         else if (game.isLearnWords()) {
@@ -140,7 +146,7 @@ public class Start extends Activity implements ViewStartI {
         IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
         try {
             ndef.addDataType("*/*");
-        }catch (MalformedMimeTypeException e) {
+        } catch (MalformedMimeTypeException e) {
             throw new RuntimeException("fail", e);
         }
         mFilters = new IntentFilter[] {ndef, };
@@ -157,15 +163,20 @@ public class Start extends Activity implements ViewStartI {
     }
 
     private void startGameAnimation(String animationFile, Runnable onAnimationFinished) {
-        starAnimationView.setVisibility(View.VISIBLE);
-        tviWord.setVisibility(View.GONE);
         starAnimationView.setAnimation(animationFile);
         starAnimationView.playAnimation();
-        starAnimationView.addAnimatorUpdateListener((animation) -> {
-            if (starAnimationView.getProgress() == 1) {
-                starAnimationView.setVisibility(View.GONE);
-                tviWord.setVisibility(View.VISIBLE);
-                if (onAnimationFinished != null) onAnimationFinished.run();
+        starAnimationView.addAnimatorListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                starAnimationView.setVisibility(View.INVISIBLE);
+                starAnimationView.setProgress(0);
+                starAnimationView.clearAnimation();
+                onAnimationFinished.run();
+            }
+
+            @Override
+            public void onAnimationStart(Animator animation) {
+                starAnimationView.setVisibility(View.VISIBLE);
             }
         });
     }

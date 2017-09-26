@@ -37,17 +37,17 @@ public class WordCon {
             @Override
             public void onDataChange(DataSnapshot snap) {
                 long wordNum = ThreadLocalRandom.current().nextLong(snap.getChildrenCount());
+                Log.i(TAG, "Random: " + wordNum);
                 Iterator<DataSnapshot> itr = snap.getChildren().iterator();
 
-                for (long i = 0; i < wordNum; i++) {
+                for (long i = 0; i < wordNum; i++)
                     itr.next();
-                }
+
                 DataSnapshot item = itr.next();
                 Word word = item.getValue(Word.class);
                 if (word != null) {
                     word.key = item.getKey();
                     actualWord = word;
-                    Log.i(TAG, word.key);
                     view.onWordObtained(word);
                 } else {
                     view.showMessage("Error");
@@ -69,7 +69,6 @@ public class WordCon {
                 Word word = snap.getValue(Word.class);
                 if (word != null){
                     word.key = snap.getKey();
-                    Log.i(TAG, word.name);
                     view.onWordObtained(word);
                 } else {
                     view.showMessage("El tag no esta registrado");

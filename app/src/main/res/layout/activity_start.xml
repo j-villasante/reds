@@ -22,9 +22,10 @@
         android:layout_centerVertical="true"
         android:textSize="140sp" />
     <com.airbnb.lottie.LottieAnimationView
+        android:visibility="gone"
         android:id="@+id/animation_view"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
+        android:layout_width="400dp"
+        android:layout_height="400dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true" />
 </RelativeLayout>
