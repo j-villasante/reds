@@ -14,15 +14,14 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.Animation;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.berry.blue.reds.game.Game;
-import com.berry.blue.reds.main.ViewStartI;
+import com.berry.blue.reds.interfaces.ViewStartI;
 import com.berry.blue.reds.main.Word;
-import com.berry.blue.reds.main.WordCon;
+import com.berry.blue.reds.game.Word;
 import com.berry.blue.reds.nfcUtil.TagControl;
 
 import java.util.ArrayList;
@@ -42,7 +41,7 @@ public class Start extends Activity implements ViewStartI {
     private final Runnable mHideRunnable = this::hide;
 
     // Controllers
-    private WordCon wordControl = WordCon.instance(this);
+    private Word wordControl = Word.instance(this);
     private Game game = Game.instance();
 
     // Click and touch variables

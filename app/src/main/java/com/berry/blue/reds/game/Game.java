@@ -1,12 +1,12 @@
 package com.berry.blue.reds.game;
 
 import com.berry.blue.reds.RedDb;
-import com.berry.blue.reds.main.Word;
-import com.berry.blue.reds.main.WordCon;
+import com.berry.blue.reds.fires.Beans;
 import com.berry.blue.reds.utils.Timy;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 
-public class Game {
+public class Game implements GameI {
     /**
      * Constant used to indicate the game has not started yet. The interfaced should be a play button.
      */
@@ -24,13 +24,13 @@ public class Game {
 
     private int status;
     private DatabaseReference reference;
-    private FireGame game;
+    private Beans.Game game;
     private Guess currentGuess;
 
     private static Game instance;
 
     private Game() {
-        this.reference = RedDb.instance().getDatabase().getReference("games").push();
+        this.reference = RedDb.instance().getReference("games").push();
     }
 
     public static Game instance() {
@@ -58,12 +58,11 @@ public class Game {
 
     public void startFindObject() {
         this.status = this.FIND_OBJECT;
-        this.game = new FireGame(this.status, Timy.nowToString());
-        this.save();
+        this.saveNewGame();
     }
 
     public void startGuess() {
-        this.currentGuess = new Guess(WordCon.instance().getActualWord(), this.reference);
+        this.currentGuess = new Guess(Word.instance().getActualWordKey(), this.reference);
         this.currentGuess.start();
     }
 
@@ -80,17 +79,18 @@ public class Game {
         this.status = this.LEARN_WORDS;
     }
 
-    private void save() {
-        this.reference.setValue(this.game);
+    private void saveNewGame() {
+        Beans.Game game = new Beans.Game(this.status, Timy.nowToString());
+        this.reference.setValue(game);
     }
 
-    private class FireGame {
-        public int type;
-        public String date;
+    @Override
+    public void onNewWord(Beans.Word word) {
 
-        FireGame(int type, String date) {
-            this.type = type;
-            this.date = date;
-        }
+    }
+
+    @Override
+    public void onError(DatabaseError error) {
+
     }
 }

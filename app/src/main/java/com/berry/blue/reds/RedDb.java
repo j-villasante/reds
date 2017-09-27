@@ -3,24 +3,18 @@ package com.berry.blue.reds;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class RedDb {
-    private static RedDb db;
+    private static FirebaseDatabase database;
 
-    private FirebaseDatabase database;
-
-    private RedDb() {
+    private static void setup() {
         database = FirebaseDatabase.getInstance();
         database.setPersistenceEnabled(true);
         database.getReference("words").keepSynced(true);
     }
 
-    public static RedDb instance() {
-        if (db == null) {
-            db = new RedDb();
+    public static FirebaseDatabase instance() {
+        if (database == null) {
+            setup();
         }
-        return db;
-    }
-
-    public FirebaseDatabase getDatabase() {
         return database;
     }
 }

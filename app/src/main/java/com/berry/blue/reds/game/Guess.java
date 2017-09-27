@@ -12,17 +12,6 @@ public class Guess {
     private static final String TAG = Guess.class.getSimpleName();
     private FireGuess guess;
 
-    private class FireGuess {
-        public Word word;
-        public long elapsedTime;
-        public int tries;
-
-        FireGuess(Word word) {
-            this.word = word;
-            this.tries = 0;
-        }
-    }
-
     Guess(Word word, DatabaseReference ref) {
         this.guess = new FireGuess(word);
         this.finished = false;
