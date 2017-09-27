@@ -32,6 +32,10 @@ public class WordCon {
         return instance;
     }
 
+    public static WordCon instance() {
+        return instance;
+    }
+
     public void getRandomWord() {
         ValueEventListener listener = new ValueEventListener() {
             @Override
@@ -85,5 +89,9 @@ public class WordCon {
 
     public boolean isActualWord(String key) {
         return this.actualWord.key.equals(key);
+    }
+
+    public Word getActualWord() {
+        return this.actualWord;
     }
 }

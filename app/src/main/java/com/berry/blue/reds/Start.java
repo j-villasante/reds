@@ -114,10 +114,16 @@ public class Start extends Activity implements ViewStartI {
         if (game.isFindObject()) {
             tviWord.setVisibility(View.INVISIBLE);
             if (this.wordControl.isActualWord(messages.get(0))) {
+                this.game.endGuess();
                 wordControl.getRandomWord();
-                this.startGameAnimation("favourite_app_icon.json", () -> tviWord.setVisibility(View.VISIBLE));
+                this.startGameAnimation("favourite_app_icon.json", () -> {
+                    tviWord.setVisibility(View.VISIBLE);
+                });
             } else {
-                this.startGameAnimation("x_pop.json", () -> tviWord.setVisibility(View.VISIBLE));
+                this.startGameAnimation("x_pop.json", () -> {
+                    tviWord.setVisibility(View.VISIBLE);
+                    this.game.addFailedGuess();
+                });
             }
         }
         else if (game.isLearnWords()) {
@@ -128,6 +134,7 @@ public class Start extends Activity implements ViewStartI {
     @Override
     public void onWordObtained(Word word) {
         tviWord.setText(word.name);
+        this.game.startGuess();
     }
 
     @Override
