@@ -10,30 +10,28 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.Iterator;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Word {
+class Word {
     private GameI view;
     private DatabaseReference reference;
 
     private static Word instance;
 
-    private final String TAG = this.getClass().getSimpleName();
-
     private Word() {
         this.reference = RedDb.instance().getReference("words");
     }
 
-    public static Word instance() {
+    static Word instance() {
         if (instance == null)
             instance = new Word();
 
         return instance;
     }
 
-    public void setView(GameI view) {
+    void setView(GameI view) {
         this.view = view;
     }
 
-    public void getRandomWord() {
+    void getRandomWord() {
         ValueEventListener listener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snap) {
@@ -55,7 +53,7 @@ public class Word {
         this.reference.addListenerForSingleValueEvent(listener);
     }
 
-    public void getWord(String key) {
+    void getWord(String key) {
         ValueEventListener listener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snap) {

@@ -20,7 +20,6 @@ import android.widget.Toast;
 import com.airbnb.lottie.LottieAnimationView;
 import com.berry.blue.reds.game.Game;
 import com.berry.blue.reds.interfaces.ViewStartI;
-import com.berry.blue.reds.game.Word;
 import com.berry.blue.reds.nfcUtil.TagControl;
 
 import java.util.ArrayList;
@@ -41,6 +40,7 @@ public class Start extends Activity implements ViewStartI {
 
     // Controllers
     private Game game = Game.instance();
+    private boolean isWordLoading = false;
 
     // Click and touch variables
     private View.OnClickListener startClickListener = (View view) -> {
@@ -113,23 +113,34 @@ public class Start extends Activity implements ViewStartI {
 
     @Override
     public void onWordObtained(String word) {
+        Log.i(TAG, word);
         tviWord.setText(word);
+        if (starAnimationView.getAnimation() != null){
+            tviWord.setVisibility(View.VISIBLE);
+            this.game.startGuess();
+        }
     }
 
     @Override
     public void startSuccessAnimation() {
-        this.tviWord.setVisibility(View.INVISIBLE);
         this.startGameAnimation("favourite_app_icon.json", () -> {
-            tviWord.setVisibility(View.VISIBLE);
+            if (!isWordLoading) {
+                tviWord.setVisibility(View.VISIBLE);
+                this.game.startGuess();
+            }
         });
+        this.tviWord.setVisibility(View.INVISIBLE);
     }
 
     @Override
     public void startErrorAnimation() {
+        this.startGameAnimation("x_pop.json", () -> tviWord.setVisibility(View.VISIBLE));
         this.tviWord.setVisibility(View.INVISIBLE);
-        this.startGameAnimation("x_pop.json", () -> {
-            tviWord.setVisibility(View.VISIBLE);
-        });
+    }
+
+    @Override
+    public void setIsWordLoading(boolean value) {
+        this.isWordLoading = value;
     }
 
     @Override

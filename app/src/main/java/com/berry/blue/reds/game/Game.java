@@ -1,7 +1,6 @@
 package com.berry.blue.reds.game;
 
 import android.util.Log;
-import android.view.View;
 
 import com.berry.blue.reds.RedDb;
 import com.berry.blue.reds.fires.Beans;
@@ -57,6 +56,7 @@ public class Game implements GameI {
     public void init() {
         this.status = this.NOT_PLAYING;
         this.word = Word.instance();
+        this.word.setView(this);
     }
 
     public void startFindObject() {
@@ -65,6 +65,7 @@ public class Game implements GameI {
             this.saveNewGame();
 
             this.word.getRandomWord(); // Gets word on the method onNewWord
+            this.view.setIsWordLoading(true);
         } else {
             Log.e(TAG, "A started game cannot be restarted.");
         }
@@ -77,6 +78,7 @@ public class Game implements GameI {
                 this.currentGuess.save();
                 this.view.startSuccessAnimation();
                 word.getRandomWord();
+                this.view.setIsWordLoading(true);
             } else {
                 this.currentGuess.addTry();
                 this.view.startErrorAnimation();
@@ -96,6 +98,10 @@ public class Game implements GameI {
         }
     }
 
+    public void startGuess() {
+        this.currentGuess.start();
+    }
+
     private void saveNewGame() {
         Beans.Game game = new Beans.Game(this.status, Timy.nowToString());
         this.reference.setValue(game);
@@ -103,11 +109,11 @@ public class Game implements GameI {
 
     @Override
     public void onNewWord(Beans.Word word, String key) {
+        this.view.setIsWordLoading(false);
         if (word != null) {
             this.actualWordKey = key;
             this.currentGuess = new Guess(word, this.reference.child("guesses").push());
             view.onWordObtained(word.name);
-            this.currentGuess.start();
         } else {
             view.showMessage("Error");
         }
