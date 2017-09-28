@@ -1,7 +1,11 @@
 package com.berry.blue.reds.game;
 
+import android.util.Log;
+import android.view.View;
+
 import com.berry.blue.reds.RedDb;
 import com.berry.blue.reds.fires.Beans;
+import com.berry.blue.reds.interfaces.ViewStartI;
 import com.berry.blue.reds.utils.Timy;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -22,10 +26,14 @@ public class Game implements GameI {
      */
     private int LEARN_WORDS = 2;
 
+    private final String TAG = getClass().getSimpleName();
+
     private int status;
     private DatabaseReference reference;
-    private Beans.Game game;
+    private ViewStartI view;
     private Guess currentGuess;
+    private String actualWordKey;
+    private Word word;
 
     private static Game instance;
 
@@ -40,13 +48,7 @@ public class Game implements GameI {
         return instance;
     }
 
-    public boolean isFindObject() {
-        return this.status == this.FIND_OBJECT;
-    }
-
-    public boolean isLearnWords() {
-        return this.status == this.LEARN_WORDS;
-    }
+    public void setView(ViewStartI view) { this. view = view; }
 
     public boolean hasStarted() {
         return this.status != this.NOT_PLAYING;
@@ -54,29 +56,44 @@ public class Game implements GameI {
 
     public void init() {
         this.status = this.NOT_PLAYING;
+        this.word = Word.instance();
     }
 
     public void startFindObject() {
-        this.status = this.FIND_OBJECT;
-        this.saveNewGame();
+        if (status == NOT_PLAYING){
+            this.status = this.FIND_OBJECT;
+            this.saveNewGame();
+
+            this.word.getRandomWord(); // Gets word on the method onNewWord
+        } else {
+            Log.e(TAG, "A started game cannot be restarted.");
+        }
     }
 
-    public void startGuess() {
-        this.currentGuess = new Guess(Word.instance().getActualWordKey(), this.reference);
-        this.currentGuess.start();
-    }
-
-    public void addFailedGuess() {
-        this.currentGuess.addTry();
-    }
-
-    public void endGuess() {
-        this.currentGuess.end();
-        this.currentGuess.save();
+    public void handleGuess(String wordKey) {
+        if (this.status == this.FIND_OBJECT) {
+            if (this.actualWordKey.equals(wordKey)) {
+                this.currentGuess.end();
+                this.currentGuess.save();
+                this.view.startSuccessAnimation();
+                word.getRandomWord();
+            } else {
+                this.currentGuess.addTry();
+                this.view.startErrorAnimation();
+            }
+        }
+        else if (this.status == this.LEARN_WORDS) {
+            this.word.getWord(wordKey);
+        }
     }
 
     public void startLearnWords() {
-        this.status = this.LEARN_WORDS;
+        if (status == NOT_PLAYING){
+            this.status = this.LEARN_WORDS;
+            this.saveNewGame();
+        } else {
+            Log.e(TAG, "A started game cannot be restarted.");
+        }
     }
 
     private void saveNewGame() {
@@ -85,12 +102,19 @@ public class Game implements GameI {
     }
 
     @Override
-    public void onNewWord(Beans.Word word) {
-
+    public void onNewWord(Beans.Word word, String key) {
+        if (word != null) {
+            this.actualWordKey = key;
+            this.currentGuess = new Guess(word, this.reference.child("guesses").push());
+            view.onWordObtained(word.name);
+            this.currentGuess.start();
+        } else {
+            view.showMessage("Error");
+        }
     }
 
     @Override
     public void onError(DatabaseError error) {
-
+        view.onValueError(error.getMessage());
     }
 }

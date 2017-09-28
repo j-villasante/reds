@@ -20,7 +20,6 @@ import android.widget.Toast;
 import com.airbnb.lottie.LottieAnimationView;
 import com.berry.blue.reds.game.Game;
 import com.berry.blue.reds.interfaces.ViewStartI;
-import com.berry.blue.reds.main.Word;
 import com.berry.blue.reds.game.Word;
 import com.berry.blue.reds.nfcUtil.TagControl;
 
@@ -41,13 +40,11 @@ public class Start extends Activity implements ViewStartI {
     private final Runnable mHideRunnable = this::hide;
 
     // Controllers
-    private Word wordControl = Word.instance(this);
     private Game game = Game.instance();
 
     // Click and touch variables
     private View.OnClickListener startClickListener = (View view) -> {
         this.mPlayLayout.setVisibility(View.GONE);
-        this.wordControl.getRandomWord();
         this.game.startFindObject();
         this.enableNfcRead();
     };
@@ -84,6 +81,7 @@ public class Start extends Activity implements ViewStartI {
 
         this.nfcInit();
         this.game.init();
+        this.game.setView(this);
     }
 
     @Override
@@ -110,30 +108,28 @@ public class Start extends Activity implements ViewStartI {
     @Override
     protected void onNewIntent(Intent intent) {
         ArrayList<String> messages = TagControl.readTag(intent);
-        if (game.isFindObject()) {
-            tviWord.setVisibility(View.INVISIBLE);
-            if (this.wordControl.isActualWord(messages.get(0))) {
-                this.game.endGuess();
-                wordControl.getRandomWord();
-                this.startGameAnimation("favourite_app_icon.json", () -> {
-                    tviWord.setVisibility(View.VISIBLE);
-                });
-            } else {
-                this.startGameAnimation("x_pop.json", () -> {
-                    tviWord.setVisibility(View.VISIBLE);
-                    this.game.addFailedGuess();
-                });
-            }
-        }
-        else if (game.isLearnWords()) {
-            this.wordControl.getWord(messages.get(0));
-        }
+        this.game.handleGuess(messages.get(0));
     }
 
     @Override
-    public void onWordObtained(Word word) {
-        tviWord.setText(word.name);
-        this.game.startGuess();
+    public void onWordObtained(String word) {
+        tviWord.setText(word);
+    }
+
+    @Override
+    public void startSuccessAnimation() {
+        this.tviWord.setVisibility(View.INVISIBLE);
+        this.startGameAnimation("favourite_app_icon.json", () -> {
+            tviWord.setVisibility(View.VISIBLE);
+        });
+    }
+
+    @Override
+    public void startErrorAnimation() {
+        this.tviWord.setVisibility(View.INVISIBLE);
+        this.startGameAnimation("x_pop.json", () -> {
+            tviWord.setVisibility(View.VISIBLE);
+        });
     }
 
     @Override

@@ -1,8 +1,8 @@
 package com.berry.blue.reds.interfaces;
 
-import com.berry.blue.reds.fires.Beans;
-
 public interface ViewStartI extends ViewStandardI {
-    void onWordObtained(Beans.Word word);
+    void onWordObtained(String word);
+    void startSuccessAnimation();
+    void startErrorAnimation();
     void onValueError(String message);
 }

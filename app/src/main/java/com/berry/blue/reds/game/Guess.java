@@ -2,20 +2,20 @@ package com.berry.blue.reds.game;
 
 import android.util.Log;
 
-import com.berry.blue.reds.main.Word;
+import com.berry.blue.reds.fires.Beans;
 import com.google.firebase.database.DatabaseReference;
 
-public class Guess {
+class Guess {
     private long startTime;
     private boolean finished;
-    private DatabaseReference gameDbReference;
+    private DatabaseReference reference;
     private static final String TAG = Guess.class.getSimpleName();
-    private FireGuess guess;
+    private Beans.Guess guess;
 
-    Guess(Word word, DatabaseReference ref) {
-        this.guess = new FireGuess(word);
+    Guess(Beans.Word word, DatabaseReference reference) {
+        this.guess = new Beans.Guess(word.name);
         this.finished = false;
-        this.gameDbReference = ref;
+        this.reference = reference;
     }
 
     public Guess() {}
@@ -38,9 +38,6 @@ public class Guess {
     }
 
     void save() {
-        this.gameDbReference
-                .child("guesses")
-                .push()
-                .setValue(this.guess);
+        this.reference.setValue(this.guess);
     }
 }

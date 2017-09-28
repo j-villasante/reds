@@ -43,7 +43,8 @@ public class Word {
                 for (long i = 0; i < wordNum; i++)
                     itr.next();
 
-                view.onNewWord(itr.next().getValue(Beans.Word.class));
+                DataSnapshot item = itr.next();
+                view.onNewWord(item.getValue(Beans.Word.class), item.getKey());
             }
 
             @Override
@@ -58,7 +59,7 @@ public class Word {
         ValueEventListener listener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snap) {
-                view.onNewWord(snap.getValue(Beans.Word.class));
+                view.onNewWord(snap.getValue(Beans.Word.class), snap.getKey());
             }
 
             @Override

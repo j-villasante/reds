@@ -1,5 +1,5 @@
 package com.berry.blue.reds.interfaces;
 
-public interface ViewStandardI {
+interface ViewStandardI {
     void showMessage(String message);
 }
