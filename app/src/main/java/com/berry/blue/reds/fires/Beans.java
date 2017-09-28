@@ -14,13 +14,12 @@ public class Beans {
     }
 
     public static class Guess {
-        public String word;
         public long elapsedTime;
-        public int tries;
+        public boolean isCorrect;
 
-        public Guess(String word) {
-            this.word = word;
-            this.tries = 0;
+        public Guess(long elapsedTime, boolean isCorrect) {
+            this.elapsedTime = elapsedTime;
+            this.isCorrect = isCorrect;
         }
 
         public Guess() {}

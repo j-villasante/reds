@@ -1,43 +1,35 @@
 package com.berry.blue.reds.game;
 
-import android.util.Log;
-
 import com.berry.blue.reds.fires.Beans;
 import com.google.firebase.database.DatabaseReference;
 
+import java.util.ArrayList;
+import java.util.List;
+
 class Guess {
     private long startTime;
-    private boolean finished;
     private DatabaseReference reference;
-    private static final String TAG = Guess.class.getSimpleName();
-    private Beans.Guess guess;
+    private String word;
+    private List<Beans.Guess> guessList;
 
     Guess(Beans.Word word, DatabaseReference reference) {
-        this.guess = new Beans.Guess(word.name);
-        this.finished = false;
+        this.word = word.name;
         this.reference = reference;
+        this.guessList = new ArrayList<>();
     }
-
-    public Guess() {}
 
     void start() {
-        if (!finished)
-            startTime = System.currentTimeMillis();
-        else
-            Log.i(TAG, "Cannot start an ended Guess");
+        this.startTime = System.currentTimeMillis();
     }
 
-    void addTry() {
-        this.guess.tries++;
-    }
-
-    void end() {
+    void endWithAnswer(boolean value) {
         long endTime = System.currentTimeMillis();
-        finished = true;
-        this.guess.elapsedTime = endTime - startTime;
+        guessList.add(new Beans.Guess(endTime - startTime, value));
+        if (value) this.save();
     }
 
-    void save() {
-        this.reference.setValue(this.guess);
+    private void save() {
+        this.reference.setValue(this.guessList);
+        this.reference.child("word").setValue(word);
     }
 }

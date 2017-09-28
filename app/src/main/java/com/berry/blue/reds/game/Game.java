@@ -31,7 +31,7 @@ public class Game implements GameI {
     private DatabaseReference reference;
     private ViewStartI view;
     private Guess currentGuess;
-    private String actualWordKey;
+    private String currentWordKey;
     private Word word;
 
     private static Game instance;
@@ -73,14 +73,13 @@ public class Game implements GameI {
 
     public void handleGuess(String wordKey) {
         if (this.status == this.FIND_OBJECT) {
-            if (this.actualWordKey.equals(wordKey)) {
-                this.currentGuess.end();
-                this.currentGuess.save();
+            if (this.currentWordKey.equals(wordKey)) {
+                this.currentGuess.endWithAnswer(true);
                 this.view.startSuccessAnimation();
                 word.getRandomWord();
                 this.view.setIsWordLoading(true);
             } else {
-                this.currentGuess.addTry();
+                this.currentGuess.endWithAnswer(false);
                 this.view.startErrorAnimation();
             }
         }
@@ -111,7 +110,7 @@ public class Game implements GameI {
     public void onNewWord(Beans.Word word, String key) {
         this.view.setIsWordLoading(false);
         if (word != null) {
-            this.actualWordKey = key;
+            this.currentWordKey = key;
             this.currentGuess = new Guess(word, this.reference.child("guesses").push());
             view.onWordObtained(word.name);
         } else {

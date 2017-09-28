@@ -41,6 +41,7 @@ public class Start extends Activity implements ViewStartI {
     // Controllers
     private Game game = Game.instance();
     private boolean isWordLoading = false;
+    private boolean isAnimationRunning = false;
 
     // Click and touch variables
     private View.OnClickListener startClickListener = (View view) -> {
@@ -115,7 +116,7 @@ public class Start extends Activity implements ViewStartI {
     public void onWordObtained(String word) {
         Log.i(TAG, word);
         tviWord.setText(word);
-        if (starAnimationView.getAnimation() != null){
+        if (!this.isAnimationRunning){
             tviWord.setVisibility(View.VISIBLE);
             this.game.startGuess();
         }
@@ -176,11 +177,13 @@ public class Start extends Activity implements ViewStartI {
     }
 
     private void startGameAnimation(String animationFile, Runnable onAnimationFinished) {
+        this.isAnimationRunning = true;
         starAnimationView.setAnimation(animationFile);
         starAnimationView.playAnimation();
         starAnimationView.addAnimatorListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
+                isAnimationRunning = false;
                 starAnimationView.setVisibility(View.INVISIBLE);
                 starAnimationView.setProgress(0);
                 starAnimationView.clearAnimation();
