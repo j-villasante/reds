@@ -21,13 +21,14 @@ import com.airbnb.lottie.LottieAnimationView;
 import com.berry.blue.reds.game.Game;
 import com.berry.blue.reds.interfaces.ViewStartI;
 import com.berry.blue.reds.nfcUtil.TagControl;
+import com.berry.blue.reds.utils.Speaking;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class Start extends Activity implements ViewStartI {
+public class StartActivity extends Activity implements ViewStartI {
     // View binding
     @BindView(R.id.fullscreen_content) View mContentView;
     @BindView(R.id.rla_play_layout) View mPlayLayout;
@@ -42,6 +43,7 @@ public class Start extends Activity implements ViewStartI {
     private Game game = Game.instance();
     private boolean isWordLoading = false;
     private boolean isAnimationRunning = false;
+    private Speaking speaking;
 
     // Click and touch variables
     private View.OnClickListener startClickListener = (View view) -> {
@@ -83,6 +85,7 @@ public class Start extends Activity implements ViewStartI {
         this.nfcInit();
         this.game.init();
         this.game.setView(this);
+        this.speaking = Speaking.instance().init(this);
     }
 
     @Override
@@ -104,6 +107,12 @@ public class Start extends Activity implements ViewStartI {
     protected void onPause() {
         super.onPause();
         this.disableNfcRead();
+    }
+
+    @Override
+    protected void onDestroy() {
+        this.speaking.stop();
+        super.onDestroy();
     }
 
     @Override
@@ -154,19 +163,6 @@ public class Start extends Activity implements ViewStartI {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
-    private void nfcInit() {
-        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-        IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
-        try {
-            ndef.addDataType("*/*");
-        } catch (MalformedMimeTypeException e) {
-            throw new RuntimeException("fail", e);
-        }
-        mFilters = new IntentFilter[] {ndef, };
-        mTechLists = new String[][] { new String[] { NfcA.class.getName() } };
-    }
-
     private void enableNfcRead() {
         mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
         Log.i(TAG, "NFC read enabled");
@@ -204,5 +200,18 @@ public class Start extends Activity implements ViewStartI {
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+    }
+
+    private void nfcInit() {
+        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
+        try {
+            ndef.addDataType("*/*");
+        } catch (MalformedMimeTypeException e) {
+            throw new RuntimeException("fail", e);
+        }
+        mFilters = new IntentFilter[] {ndef, };
+        mTechLists = new String[][] { new String[] { NfcA.class.getName() } };
     }
 }

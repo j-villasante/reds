@@ -9,7 +9,7 @@ import java.util.List;
 class Guess {
     private long startTime;
     private DatabaseReference reference;
-    private String word;
+    public String word;
     private List<Beans.Guess> guessList;
 
     Guess(Beans.Word word, DatabaseReference reference) {

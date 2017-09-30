@@ -21,7 +21,7 @@ public class SplashActivity extends Activity {
         if (user == null) {
             startActivity(new Intent(this, LoginActivity.class));
         } else {
-            startActivity(new Intent(this, Start.class));
+            startActivity(new Intent(this, StartActivity.class));
         }
     }
 }

@@ -1,10 +1,12 @@
 package com.berry.blue.reds.game;
 
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
 import com.berry.blue.reds.RedDb;
 import com.berry.blue.reds.fires.Beans;
 import com.berry.blue.reds.interfaces.ViewStartI;
+import com.berry.blue.reds.utils.Speaking;
 import com.berry.blue.reds.utils.Timy;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -99,6 +101,7 @@ public class Game implements GameI {
 
     public void startGuess() {
         this.currentGuess.start();
+        Speaking.instance().speak("Hola. ¿Hablas algún idioma extranjero? Un solo idioma no es suficiente.");
     }
 
     private void saveNewGame() {

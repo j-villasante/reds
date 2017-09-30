@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="#0099cc"
     android:id="@+id/fullscreen_content"
-    tools:context="com.berry.blue.reds.Start">
+    tools:context="com.berry.blue.reds.StartActivity">
     <Button
         android:id="@+id/rla_play_layout"
         android:layout_width="300dp"
