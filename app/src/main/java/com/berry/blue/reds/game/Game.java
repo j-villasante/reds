@@ -101,7 +101,7 @@ public class Game implements GameI {
 
     public void startGuess() {
         this.currentGuess.start();
-        Speaking.instance().speak("Hola. ¿Hablas algún idioma extranjero? Un solo idioma no es suficiente.");
+        Speaking.instance().speak(this.currentGuess.word);
     }
 
     private void saveNewGame() {
