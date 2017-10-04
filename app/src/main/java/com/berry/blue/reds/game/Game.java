@@ -35,31 +35,26 @@ public class Game implements GameI {
     private Guess currentGuess;
     private String currentWordKey;
     private Word word;
+    private int wordCount;
 
-    private static Game instance;
-
-    private Game() {
+    public Game(ViewStartI view) {
+        this.wordCount = 0;
         this.reference = RedDb.instance().getReference("games").push();
+        this.status = this.NOT_PLAYING;
+        this.word = Word.instance();
+        this.word.setView(this);
+        this. view = view;
     }
-
-    public static Game instance() {
-        if (instance == null) {
-            instance = new Game();
-        }
-        return instance;
-    }
-
-    public void setView(ViewStartI view) { this. view = view; }
 
     public boolean hasStarted() {
         return this.status != this.NOT_PLAYING;
     }
 
-    public void init() {
-        this.status = this.NOT_PLAYING;
-        this.word = Word.instance();
-        this.word.setView(this);
-    }
+//    public void init() {
+//        this.status = this.NOT_PLAYING;
+//        this.word = Word.instance();
+//        this.word.setView(this);
+//    }
 
     public void startFindObject() {
         if (status == NOT_PLAYING){
@@ -76,10 +71,13 @@ public class Game implements GameI {
     public void handleGuess(String wordKey) {
         if (this.status == this.FIND_OBJECT) {
             if (this.currentWordKey.equals(wordKey)) {
+                this.wordCount++;
                 this.currentGuess.endWithAnswer(true);
                 this.view.startSuccessAnimation();
-                word.getRandomWord();
-                this.view.setIsWordLoading(true);
+                if (!this.isFinished()){
+                    word.getRandomWord();
+                    this.view.setIsWordLoading(true);
+                }
             } else {
                 this.currentGuess.endWithAnswer(false);
                 this.view.startErrorAnimation();
@@ -101,12 +99,20 @@ public class Game implements GameI {
 
     public void startGuess() {
         this.currentGuess.start();
+        speakWord();
+    }
+
+    public void speakWord() {
         Speaking.instance().speak(this.currentGuess.word);
     }
 
     private void saveNewGame() {
         Beans.Game game = new Beans.Game(this.status, Timy.nowToString());
         this.reference.setValue(game);
+    }
+
+    public boolean isFinished() {
+        return this.wordCount >= 10;
     }
 
     @Override

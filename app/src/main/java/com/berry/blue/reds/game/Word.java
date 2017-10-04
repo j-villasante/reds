@@ -21,9 +21,7 @@ class Word {
     }
 
     static Word instance() {
-        if (instance == null)
-            instance = new Word();
-
+        if (instance == null) instance = new Word();
         return instance;
     }
 
@@ -36,6 +34,7 @@ class Word {
             @Override
             public void onDataChange(DataSnapshot snap) {
                 long wordNum = ThreadLocalRandom.current().nextLong(snap.getChildrenCount());
+
                 Iterator<DataSnapshot> itr = snap.getChildren().iterator();
 
                 for (long i = 0; i < wordNum; i++)
