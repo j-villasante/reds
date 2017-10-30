@@ -13,6 +13,7 @@ import java.util.concurrent.ThreadLocalRandom;
 class Word {
     private GameI view;
     private DatabaseReference reference;
+    private Beans.Word previousWord;
 
     private static Word instance;
 
@@ -37,11 +38,21 @@ class Word {
 
                 Iterator<DataSnapshot> itr = snap.getChildren().iterator();
 
-                for (long i = 0; i < wordNum; i++)
-                    itr.next();
+                for (long i = 0; i < wordNum; i++) itr.next();
 
-                DataSnapshot item = itr.next();
-                view.onNewWord(item.getValue(Beans.Word.class), item.getKey());
+                DataSnapshot snapshot = itr.next();
+                Beans.Word word = snapshot.getValue(Beans.Word.class);
+
+                if (word != null && previousWord != null && previousWord.name.equals(word.name)) {
+                    if (itr.hasNext())
+                        snapshot = itr.next();
+                    else
+                        snapshot = snap.getChildren().iterator().next();
+
+                    word = snapshot.getValue(Beans.Word.class);
+                }
+                previousWord = word;
+                view.onNewWord(word, snapshot.getKey());
             }
 
             @Override
