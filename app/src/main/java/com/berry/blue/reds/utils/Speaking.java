@@ -35,7 +35,7 @@ public class Speaking {
 
     public void speak(String text) {
         if (tts == null)
-            Log.e("TTS", "TTS has not me initiated.");
+            Log.e("TTS", "TTS has not been initiated.");
         else
             tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
     }
