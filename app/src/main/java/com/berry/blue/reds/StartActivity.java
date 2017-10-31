@@ -32,7 +32,7 @@ public class StartActivity extends Activity implements ViewStartI {
     // View binding
     @BindView(R.id.fullscreen_content) View mContentView;
     @BindView(R.id.rla_play_layout) View mPlayLayout;
-    @BindView(R.id.main_word_view) TextView tviWord;
+    @BindView(R.id.tvi_main_word) TextView tviWord;
     @BindView(R.id.animation_view) LottieAnimationView starAnimationView;
 
     // Fullscreen variables
@@ -51,19 +51,6 @@ public class StartActivity extends Activity implements ViewStartI {
         this.mPlayLayout.setVisibility(View.GONE);
         this.game.startFindObject();
         this.enableNfcRead();
-    };
-    private Handler playTouchHandler = new Handler();
-    private Runnable longStartClickHandler = () -> {
-        this.mPlayLayout.setVisibility(View.GONE);
-        this.game.startLearnWords();
-        this.enableNfcRead();
-    };
-    private View.OnTouchListener startTouchListener = (View v, MotionEvent e) -> {
-        if(e.getAction() == MotionEvent.ACTION_DOWN)
-            playTouchHandler.postDelayed(longStartClickHandler, 1000);
-        if((e.getAction() == MotionEvent.ACTION_MOVE)||(e.getAction() == MotionEvent.ACTION_UP))
-            playTouchHandler.removeCallbacks(longStartClickHandler);
-        return true;
     };
 
     // NFC variables
@@ -170,12 +157,12 @@ public class StartActivity extends Activity implements ViewStartI {
     }
 
     private void enableNfcRead() {
-        mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
+        if (mNfcAdapter != null) mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
         Log.i(TAG, "NFC read enabled");
     }
 
     private void disableNfcRead() {
-        mNfcAdapter.disableForegroundDispatch(this);
+        if (mNfcAdapter != null) mNfcAdapter.disableForegroundDispatch(this);
     }
 
     private void startGameAnimation(String animationFile, Runnable onAnimationFinished) {
@@ -210,6 +197,7 @@ public class StartActivity extends Activity implements ViewStartI {
 
     private void nfcInit() {
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (mNfcAdapter == null) return;
         mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
         try {

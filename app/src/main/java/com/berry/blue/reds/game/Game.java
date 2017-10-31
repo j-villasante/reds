@@ -1,6 +1,5 @@
 package com.berry.blue.reds.game;
 
-import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
 import com.berry.blue.reds.RedDb;
