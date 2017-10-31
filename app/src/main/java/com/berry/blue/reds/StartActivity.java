@@ -59,7 +59,7 @@ public class StartActivity extends Activity implements ViewStartI {
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
 
-    private static final String TAG = TagControl.class.getSimpleName();
+    private static final String TAG = StartActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

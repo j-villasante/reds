@@ -1,5 +1,7 @@
 package com.berry.blue.reds.game;
 
+import android.util.Log;
+
 import com.berry.blue.reds.fires.Beans;
 
 class Word {
@@ -39,7 +41,7 @@ class Word {
         word.name = sample[i][0];
 
         if (i >= 15) i = 0;
-
+        Log.d(getClass().getSimpleName(), word.name);
         view.onNewWord(word, sample[i][1]);
         i++;
     }

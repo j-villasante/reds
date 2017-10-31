@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
@@ -34,16 +35,26 @@ public class StartActivityTests {
 //    }
 
     @Test
-    public void shouldShowWord() throws InterruptedException {
+    public void shouldShowWord() {
         onView(withId(R.id.rla_play_layout)).perform(click());
-        Parcelable message = new NdefMessage(NdefRecord.createTextRecord("en", "a"));
-        Intent intent = new Intent();
+        Parcelable message[] = new NdefMessage[]{ new NdefMessage(NdefRecord.createTextRecord("en", "a")) };
+        Intent intent = new Intent(NfcAdapter.ACTION_NDEF_DISCOVERED);
         intent.putExtra(NfcAdapter.EXTRA_NDEF_MESSAGES, message);
-        startActivityTestRule.getActivity().onNewIntent(intent);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        Thread.sleep(10000);
-        onView(withId(R.id.tvi_main_word)).check(matches(withText("manzana")));
-        //onView(withId(R.id.tvi_main_word)).check(matches(not()));
+        timeout(2000, 1, () -> {
+            startActivityTestRule.launchActivity(intent);
+        });
+
+        //onView(withId(R.id.tvi_main_word)).check(matches(withText("manzana")));
+    }
+
+    public void timeout(int millis, int amount, Runnable runnable) {
+        Handler handler = new Handler();
+        handler.postDelayed(() -> {
+            runnable.run();
+            if (amount <= 0) timeout(millis, amount - 1, runnable);
+        }, millis);
     }
 
 }
