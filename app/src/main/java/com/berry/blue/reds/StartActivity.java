@@ -40,13 +40,14 @@ public class StartActivity extends Activity implements ViewStartI {
     private final Runnable mHideRunnable = this::hide;
 
     // Controllers
-    private Game game = Game.instance();
+    private Game game;
     private boolean isWordLoading = false;
     private boolean isAnimationRunning = false;
     private Speaking speaking;
 
     // Click and touch variables
     private View.OnClickListener startClickListener = (View view) -> {
+        this.game = new Game(this);
         this.mPlayLayout.setVisibility(View.GONE);
         this.game.startFindObject();
         this.enableNfcRead();
@@ -80,11 +81,10 @@ public class StartActivity extends Activity implements ViewStartI {
         ButterKnife.bind(this);
 
         mPlayLayout.setOnClickListener(this.startClickListener);
+        tviWord.setOnClickListener(v -> game.speakWord());
         // mPlayLayout.setOnTouchListener(this.startTouchListener);
 
         this.nfcInit();
-        this.game.init();
-        this.game.setView(this);
         this.speaking = Speaking.instance().init(this);
     }
 
@@ -98,7 +98,7 @@ public class StartActivity extends Activity implements ViewStartI {
     protected void onResume() {
         super.onResume();
         mHideHandler.postDelayed(mHideRunnable, 500);
-        if (game.hasStarted()) {
+        if (game != null && game.hasStarted()) {
             this.enableNfcRead();
         }
     }
@@ -135,8 +135,14 @@ public class StartActivity extends Activity implements ViewStartI {
     public void startSuccessAnimation() {
         this.startGameAnimation("favourite_app_icon.json", () -> {
             if (!isWordLoading) {
-                tviWord.setVisibility(View.VISIBLE);
-                this.game.startGuess();
+                if (game.isFinished()) {
+                    this.mPlayLayout.setVisibility(View.VISIBLE);
+                    this.tviWord.setVisibility(View.GONE);
+                    this.disableNfcRead();
+                } else {
+                    tviWord.setVisibility(View.VISIBLE);
+                    this.game.startGuess();
+                }
             }
         });
         this.tviWord.setVisibility(View.INVISIBLE);
