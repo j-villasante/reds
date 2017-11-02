@@ -22,7 +22,7 @@ class Word {
             new String[] {"sandia", "m"},
             new String[] {"palta", "n"},
             new String[] {"piña", "o"},
-            new String[] {"cereza", "p"},
+            new String[] {"cereza", "p"}
     };
     private int i = 0;
 
@@ -40,7 +40,7 @@ class Word {
         Beans.Word word = new Beans.Word();
         word.name = sample[i][0];
 
-        if (i >= 15) i = 0;
+        if (i >= 16) i = 0;
         Log.d(getClass().getSimpleName(), word.name);
         view.onNewWord(word, sample[i][1]);
         i++;

@@ -74,8 +74,8 @@ public class Game implements GameI {
                 this.currentGuess.endWithAnswer(true);
                 this.view.startSuccessAnimation();
                 if (!this.isFinished()){
-                    word.getRandomWord();
                     this.view.setIsWordLoading(true);
+                    word.getRandomWord();
                 }
             } else {
                 this.currentGuess.endWithAnswer(false);
