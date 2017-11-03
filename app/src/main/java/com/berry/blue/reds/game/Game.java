@@ -83,7 +83,7 @@ public class Game implements GameI {
             }
         }
         else if (this.status == this.LEARN_WORDS) {
-            this.word.getWord(wordKey);
+            // this.word.getWord(wordKey);
         }
     }
 
@@ -111,7 +111,7 @@ public class Game implements GameI {
     }
 
     public boolean isFinished() {
-        return this.wordCount >= 10;
+        return this.wordCount >= 100;
     }
 
     @Override

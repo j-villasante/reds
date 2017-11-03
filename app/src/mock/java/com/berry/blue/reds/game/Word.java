@@ -39,25 +39,9 @@ class Word {
     void getRandomWord() {
         Beans.Word word = new Beans.Word();
         word.name = sample[i][0];
-
-        if (i >= 16) i = 0;
-        Log.d(getClass().getSimpleName(), word.name);
         view.onNewWord(word, sample[i][1]);
-        i++;
-    }
 
-    void getWord(String key) {
-//        ValueEventListener listener = new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot snap) {
-//                view.onNewWord(snap.getValue(Beans.Word.class), snap.getKey());
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//                view.onError(databaseError);
-//            }
-//        };
-//        this.reference.child(key).addListenerForSingleValueEvent(listener);
+        i++;
+        if (i >= 16) i = 0;
     }
 }

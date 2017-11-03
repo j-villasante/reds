@@ -1,19 +1,42 @@
 package com.berry.blue.reds;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.util.Log;
 
 public class MockedStartActivity extends StartActivity{
     private String[] letters = new String[] {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p"};
-    private int i = 0;
     private int testNum = 0;
     private Handler handler = new Handler();
     private boolean isFirst = true;
+
+    private int amount = 50;
+    private int attempts = 1;
+    private final long delay = 7000;
+    private int i = 0;
+    private int j = 1;
+
+    private AnimatorListenerAdapter animatorListenerAdapter = new AnimatorListenerAdapter() {
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            super.onAnimationEnd(animation);
+            if (testNum < amount) startTest();
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        this.animationView.addAnimatorListener(animatorListenerAdapter);
+    }
 
     @Override
     public void onWordObtained(String word) {
@@ -22,28 +45,33 @@ public class MockedStartActivity extends StartActivity{
             this.startTest();
             isFirst = false;
         }
-        Log.e(getClass().getSimpleName(), "test");
     }
 
-
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
 
     private void startTest() {
-        handler.postDelayed(this::performTest, 4000);
-    }
-
-    private void performTest() {
-        this.onNewIntent(getNextNfcIntent());
-        testNum++;
-        if (testNum < 5) this.startTest();
+        handler.postDelayed(() -> this.onNewIntent(getNextNfcIntent()), delay);
     }
 
     private Intent getNextNfcIntent() {
-        Parcelable message[] = new NdefMessage[]{ new NdefMessage(NdefRecord.createTextRecord("en", letters[i])) };
+        String key;
+        if (j < attempts) {
+            j++;
+            key = "abc";
+        } else {
+            j = 1;
+            key = letters[i];
+            i++;
+            if (i >= 16) i = 0;
+            testNum++;
+        }
+
+        Parcelable message[] = new NdefMessage[]{ new NdefMessage(NdefRecord.createTextRecord("en", key)) };
         Intent intent = new Intent(NfcAdapter.ACTION_NDEF_DISCOVERED);
         intent.putExtra(NfcAdapter.EXTRA_NDEF_MESSAGES, message);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        i++;
-        if (i >= 16) i = 0;
         return intent;
     }
 }

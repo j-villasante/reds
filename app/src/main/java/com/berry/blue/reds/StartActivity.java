@@ -12,7 +12,6 @@ import android.nfc.tech.NfcA;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,7 +32,7 @@ public class StartActivity extends Activity implements ViewStartI {
     @BindView(R.id.fullscreen_content) View mContentView;
     @BindView(R.id.rla_play_layout) View mPlayLayout;
     @BindView(R.id.tvi_main_word) TextView tviWord;
-    @BindView(R.id.animation_view) LottieAnimationView starAnimationView;
+    @BindView(R.id.animation_view) LottieAnimationView animationView;
 
     // Fullscreen variables
     private final Handler mHideHandler = new Handler();
@@ -110,7 +109,6 @@ public class StartActivity extends Activity implements ViewStartI {
 
     @Override
     public void onWordObtained(String word) {
-        Log.i(TAG, word);
         tviWord.setText(word);
         if (!this.isAnimationRunning){
             tviWord.setVisibility(View.VISIBLE);
@@ -167,21 +165,22 @@ public class StartActivity extends Activity implements ViewStartI {
 
     private void startGameAnimation(String animationFile, Runnable onAnimationFinished) {
         this.isAnimationRunning = true;
-        starAnimationView.setAnimation(animationFile);
-        starAnimationView.playAnimation();
-        starAnimationView.addAnimatorListener(new AnimatorListenerAdapter() {
+        animationView = findViewById(R.id.animation_view);
+        animationView.setAnimation(animationFile);
+        animationView.playAnimation();
+        animationView.addAnimatorListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 isAnimationRunning = false;
-                starAnimationView.setVisibility(View.INVISIBLE);
-                starAnimationView.setProgress(0);
-                starAnimationView.clearAnimation();
+                animationView.setVisibility(View.INVISIBLE);
+                animationView.setProgress(0);
+                animationView.clearAnimation();
                 onAnimationFinished.run();
             }
 
             @Override
             public void onAnimationStart(Animator animation) {
-                starAnimationView.setVisibility(View.VISIBLE);
+                animationView.setVisibility(View.VISIBLE);
             }
         });
     }
