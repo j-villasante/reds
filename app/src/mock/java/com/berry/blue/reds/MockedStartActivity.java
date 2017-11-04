@@ -9,7 +9,6 @@ import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.util.Log;
 
 public class MockedStartActivity extends StartActivity{
     private String[] letters = new String[] {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p"};
@@ -17,9 +16,9 @@ public class MockedStartActivity extends StartActivity{
     private Handler handler = new Handler();
     private boolean isFirst = true;
 
-    private int amount = 50;
-    private int attempts = 1;
-    private final long delay = 7000;
+    private int amount = 10;
+    private int attempts = 5;
+    private final long delay = 3000;
     private int i = 0;
     private int j = 1;
 
@@ -34,7 +33,6 @@ public class MockedStartActivity extends StartActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         this.animationView.addAnimatorListener(animatorListenerAdapter);
     }
 
