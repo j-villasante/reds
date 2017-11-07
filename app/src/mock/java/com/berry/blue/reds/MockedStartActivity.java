@@ -16,8 +16,8 @@ public class MockedStartActivity extends StartActivity{
     private Handler handler = new Handler();
     private boolean isFirst = true;
 
-    private int amount = 10;
-    private int attempts = 5;
+    private int amount = 20;
+    private int attempts = 1;
     private final long delay = 3000;
     private int i = 0;
     private int j = 1;
