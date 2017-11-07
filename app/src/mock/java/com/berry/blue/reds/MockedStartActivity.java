@@ -9,7 +9,6 @@ import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.util.Log;
 
 public class MockedStartActivity extends StartActivity{
     private String[] letters = new String[] {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p"};
@@ -19,8 +18,7 @@ public class MockedStartActivity extends StartActivity{
 
     private int amount = 10;
     private int attempts = 5;
-    private final long delay = 2000;
-
+    private final long delay = 3000;
     private int i = 0;
     private int j = 1;
 

@@ -21,10 +21,13 @@ android {
     productFlavors {
         prod {
             dimension "mode"
+            applicationIdSuffix ".prod"
+            versionNameSuffix "-prod"
         }
         mock {
             dimension "mode"
-            // applicationIdSuffix = ".mock"
+            applicationIdSuffix ".mock"
+            versionNameSuffix "-mock"
         }
     }
     compileOptions {

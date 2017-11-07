@@ -125,7 +125,7 @@ public class StartActivity extends Activity implements ViewStartI {
                     this.tviWord.setVisibility(View.GONE);
                     this.disableNfcRead();
                 } else {
-                    tviWord.setVisibility(View.VISIBLE);
+                    this.tviWord.setVisibility(View.VISIBLE);
                     this.game.startGuess();
                 }
             }
