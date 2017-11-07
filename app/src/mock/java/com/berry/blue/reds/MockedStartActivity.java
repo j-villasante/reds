@@ -16,9 +16,9 @@ public class MockedStartActivity extends StartActivity{
     private Handler handler = new Handler();
     private boolean isFirst = true;
 
-    private int amount = 20;
-    private int attempts = 1;
-    private final long delay = 3000;
+    private int amount = 50;
+    private int attempts = 10;
+    private final long delay = 1000;
     private int i = 0;
     private int j = 1;
 
@@ -33,7 +33,8 @@ public class MockedStartActivity extends StartActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.animationView.addAnimatorListener(animatorListenerAdapter);
+        this.successAnimationView.addAnimatorListener(animatorListenerAdapter);
+        this.errorAnimationView.addAnimatorListener(animatorListenerAdapter);
     }
 
     @Override

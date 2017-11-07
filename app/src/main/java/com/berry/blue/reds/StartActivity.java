@@ -32,7 +32,8 @@ public class StartActivity extends Activity implements ViewStartI {
     @BindView(R.id.fullscreen_content) View mContentView;
     @BindView(R.id.rla_play_layout) View mPlayLayout;
     @BindView(R.id.tvi_main_word) TextView tviWord;
-    @BindView(R.id.animation_view) LottieAnimationView animationView;
+    @BindView(R.id.success_animation_view) LottieAnimationView successAnimationView;
+    @BindView(R.id.error_animation_view) LottieAnimationView errorAnimationView;
 
     // Fullscreen variables
     private final Handler mHideHandler = new Handler();
@@ -71,6 +72,7 @@ public class StartActivity extends Activity implements ViewStartI {
         // mPlayLayout.setOnTouchListener(this.startTouchListener);
 
         this.nfcInit();
+        this.animationsInit();
         this.speaking = Speaking.instance().init(this);
     }
 
@@ -118,28 +120,12 @@ public class StartActivity extends Activity implements ViewStartI {
 
     @Override
     public void startSuccessAnimation() {
-        this.startGameAnimation("favourite_app_icon.json", () -> {
-            if (!isWordLoading) {
-                if (game.isFinished()) {
-                    this.mPlayLayout.setVisibility(View.VISIBLE);
-                    this.tviWord.setVisibility(View.GONE);
-                    this.disableNfcRead();
-                } else {
-                    this.tviWord.setVisibility(View.VISIBLE);
-                    this.game.startGuess();
-                }
-            }
-        });
-        this.tviWord.setVisibility(View.INVISIBLE);
+        this.startGameAnimation(successAnimationView);
     }
 
     @Override
     public void startErrorAnimation() {
-        this.startGameAnimation("x_pop.json", () -> {
-            tviWord.setVisibility(View.VISIBLE);
-            this.game.startGuess();
-        });
-        this.tviWord.setVisibility(View.INVISIBLE);
+        this.startGameAnimation(errorAnimationView);
     }
 
     @Override
@@ -166,26 +152,46 @@ public class StartActivity extends Activity implements ViewStartI {
         if (mNfcAdapter != null) mNfcAdapter.disableForegroundDispatch(this);
     }
 
-    private void startGameAnimation(String animationFile, Runnable onAnimationFinished) {
-        this.isAnimationRunning = true;
-        animationView = findViewById(R.id.animation_view);
-        animationView.setAnimation(animationFile);
-        animationView.playAnimation();
+    private void animationsInit() {
+        this.setAnimationListener(successAnimationView, () -> {
+            if (!isWordLoading) {
+                if (game.isFinished()) {
+                    this.mPlayLayout.setVisibility(View.VISIBLE);
+                    this.tviWord.setVisibility(View.GONE);
+                    this.disableNfcRead();
+                } else {
+                    this.tviWord.setVisibility(View.VISIBLE);
+                    this.game.startGuess();
+                }
+            }
+        });
+        this.setAnimationListener(errorAnimationView, () -> {
+            tviWord.setVisibility(View.VISIBLE);
+            this.game.startGuess();
+        });
+    }
+
+    private void setAnimationListener(LottieAnimationView animationView, Runnable onAnimationFinished) {
         animationView.addAnimatorListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 isAnimationRunning = false;
                 animationView.setVisibility(View.INVISIBLE);
                 animationView.setProgress(0);
-                animationView.clearAnimation();
                 onAnimationFinished.run();
             }
 
             @Override
             public void onAnimationStart(Animator animation) {
+                tviWord.setVisibility(View.INVISIBLE);
                 animationView.setVisibility(View.VISIBLE);
             }
         });
+    }
+
+    private void startGameAnimation(LottieAnimationView animationView) {
+        this.isAnimationRunning = true;
+        animationView.playAnimation();
     }
 
     private void hide() {
