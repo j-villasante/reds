@@ -135,7 +135,10 @@ public class StartActivity extends Activity implements ViewStartI {
 
     @Override
     public void startErrorAnimation() {
-        this.startGameAnimation("x_pop.json", () -> tviWord.setVisibility(View.VISIBLE));
+        this.startGameAnimation("x_pop.json", () -> {
+            tviWord.setVisibility(View.VISIBLE);
+            this.game.startGuess();
+        });
         this.tviWord.setVisibility(View.INVISIBLE);
     }
 

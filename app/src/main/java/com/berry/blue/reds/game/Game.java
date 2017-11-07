@@ -42,7 +42,7 @@ public class Game implements GameI {
         this.status = this.NOT_PLAYING;
         this.word = Word.instance();
         this.word.setView(this);
-        this. view = view;
+        this.view = view;
     }
 
     public boolean hasStarted() {
