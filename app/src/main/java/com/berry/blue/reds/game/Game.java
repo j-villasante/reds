@@ -111,7 +111,7 @@ public class Game implements GameI {
     }
 
     public boolean isFinished() {
-        return this.wordCount >= 100;
+        return this.wordCount >= 2000;
     }
 
     @Override
