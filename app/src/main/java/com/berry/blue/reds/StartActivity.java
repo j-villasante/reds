@@ -12,7 +12,6 @@ import android.nfc.tech.NfcA;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,7 +30,8 @@ import butterknife.ButterKnife;
 public class StartActivity extends Activity implements ViewStartI {
     // View binding
     @BindView(R.id.fullscreen_content) View mContentView;
-    @BindView(R.id.rla_play_layout) View mPlayLayout;
+    @BindView(R.id.rla_play_one_layout) View mPlaySearchLayout;
+    @BindView(R.id.rla_play_two_layout) View mPlayLearnLayout;
     @BindView(R.id.main_word_view) TextView tviWord;
     @BindView(R.id.animation_view) LottieAnimationView starAnimationView;
 
@@ -46,24 +46,19 @@ public class StartActivity extends Activity implements ViewStartI {
     private Speaking speaking;
 
     // Click and touch variables
-    private View.OnClickListener startClickListener = (View view) -> {
+    private View.OnClickListener startSearchClickListener = (View view) -> {
         this.game = new Game(this);
-        this.mPlayLayout.setVisibility(View.GONE);
+        this.mPlaySearchLayout.setVisibility(View.GONE);
+        this.mPlayLearnLayout.setVisibility(View.GONE);
         this.game.startFindObject();
         this.enableNfcRead();
     };
-    private Handler playTouchHandler = new Handler();
-    private Runnable longStartClickHandler = () -> {
-        this.mPlayLayout.setVisibility(View.GONE);
+    private View.OnClickListener startLearnClickListener = (View view) -> {
+        this.game = new Game(this);
+        this.mPlaySearchLayout.setVisibility(View.GONE);
+        this.mPlayLearnLayout.setVisibility(View.GONE);
         this.game.startLearnWords();
         this.enableNfcRead();
-    };
-    private View.OnTouchListener startTouchListener = (View v, MotionEvent e) -> {
-        if(e.getAction() == MotionEvent.ACTION_DOWN)
-            playTouchHandler.postDelayed(longStartClickHandler, 1000);
-        if((e.getAction() == MotionEvent.ACTION_MOVE)||(e.getAction() == MotionEvent.ACTION_UP))
-            playTouchHandler.removeCallbacks(longStartClickHandler);
-        return true;
     };
 
     // NFC variables
@@ -80,9 +75,9 @@ public class StartActivity extends Activity implements ViewStartI {
         setContentView(R.layout.activity_start);
         ButterKnife.bind(this);
 
-        mPlayLayout.setOnClickListener(this.startClickListener);
+        mPlaySearchLayout.setOnClickListener(this.startSearchClickListener);
+        mPlayLearnLayout.setOnClickListener(this.startLearnClickListener);
         tviWord.setOnClickListener(v -> game.speakWord());
-        // mPlayLayout.setOnTouchListener(this.startTouchListener);
 
         this.nfcInit();
         this.speaking = Speaking.instance().init(this);
@@ -136,7 +131,7 @@ public class StartActivity extends Activity implements ViewStartI {
         this.startGameAnimation("favourite_app_icon.json", () -> {
             if (!isWordLoading) {
                 if (game.isFinished()) {
-                    this.mPlayLayout.setVisibility(View.VISIBLE);
+                    this.mPlaySearchLayout.setVisibility(View.VISIBLE);
                     this.tviWord.setVisibility(View.GONE);
                     this.disableNfcRead();
                 } else {

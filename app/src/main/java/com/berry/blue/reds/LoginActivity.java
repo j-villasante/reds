@@ -36,13 +36,13 @@ public class LoginActivity extends Activity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        mPasswordView.setOnEditorActionListener((textView, id, keyEvent) -> {
-            if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                attemptLogin();
-                return true;
-            }
-            return false;
-        });
+//        mPasswordView.setOnEditorActionListener((textView, id, keyEvent) -> {
+//            if (id == R.id.login || id == EditorInfo.IME_NULL) {
+//                attemptLogin();
+//                return true;
+//            }
+//            return false;
+//        });
         mEmailSignInButton.setOnClickListener(view -> attemptLogin());
     }
 

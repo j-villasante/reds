@@ -119,8 +119,16 @@ public class Game implements GameI {
     public void onNewWord(Beans.Word word, String key) {
         this.view.setIsWordLoading(false);
         if (word != null) {
-            this.currentWordKey = key;
-            this.currentGuess = new Guess(word, this.reference.child("guesses").push());
+            if (this.status == FIND_OBJECT) {
+                this.currentWordKey = key;
+                this.currentGuess = new Guess(word, this.reference.child("guesses").push());
+            } else if (this.status == LEARN_WORDS) {
+                if(this.currentGuess != null) this.currentGuess.endWithAnswer(true);
+                this.currentWordKey = key;
+                this.currentGuess = new Guess(word, this.reference.child("guesses").push());
+                this.currentGuess.start();
+                this.speakWord();
+            }
             view.onWordObtained(word.name);
         } else {
             view.showMessage("Error");
