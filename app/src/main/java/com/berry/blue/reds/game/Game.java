@@ -1,6 +1,5 @@
 package com.berry.blue.reds.game;
 
-import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
 import com.berry.blue.reds.RedDb;
@@ -43,7 +42,7 @@ public class Game implements GameI {
         this.status = this.NOT_PLAYING;
         this.word = Word.instance();
         this.word.setView(this);
-        this. view = view;
+        this.view = view;
     }
 
     public boolean hasStarted() {
@@ -75,8 +74,8 @@ public class Game implements GameI {
                 this.currentGuess.endWithAnswer(true);
                 this.view.startSuccessAnimation();
                 if (!this.isFinished()){
-                    word.getRandomWord();
                     this.view.setIsWordLoading(true);
+                    word.getRandomWord();
                 }
             } else {
                 this.currentGuess.endWithAnswer(false);
@@ -84,7 +83,7 @@ public class Game implements GameI {
             }
         }
         else if (this.status == this.LEARN_WORDS) {
-            this.word.getWord(wordKey);
+            // this.word.getWord(wordKey);
         }
     }
 
@@ -112,7 +111,7 @@ public class Game implements GameI {
     }
 
     public boolean isFinished() {
-        return this.wordCount >= 10;
+        return this.wordCount >= 2000;
     }
 
     @Override
