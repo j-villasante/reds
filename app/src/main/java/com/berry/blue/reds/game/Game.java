@@ -2,6 +2,7 @@ package com.berry.blue.reds.game;
 
 import android.util.Log;
 
+import com.berry.blue.reds.Constants;
 import com.berry.blue.reds.RedDb;
 import com.berry.blue.reds.fires.Beans;
 import com.berry.blue.reds.interfaces.ViewStartI;
@@ -37,8 +38,6 @@ public class Game implements GameI {
     private int wordCount;
 
     public Game(ViewStartI view) {
-        this.wordCount = 0;
-        this.reference = RedDb.instance().getReference("games").push();
         this.status = this.NOT_PLAYING;
         this.word = Word.instance();
         this.word.setView(this);
@@ -49,14 +48,9 @@ public class Game implements GameI {
         return this.status != this.NOT_PLAYING;
     }
 
-//    public void init() {
-//        this.status = this.NOT_PLAYING;
-//        this.word = Word.instance();
-//        this.word.setView(this);
-//    }
-
     public void startFindObject() {
         if (status == NOT_PLAYING){
+            this.wordCount = 0;
             this.status = this.FIND_OBJECT;
             this.saveNewGame();
 
@@ -83,7 +77,8 @@ public class Game implements GameI {
             }
         }
         else if (this.status == this.LEARN_WORDS) {
-            // this.word.getWord(wordKey);
+            this.currentGuess.endForOne();
+            this.word.getWord(wordKey);
         }
     }
 
@@ -91,6 +86,8 @@ public class Game implements GameI {
         if (status == NOT_PLAYING){
             this.status = this.LEARN_WORDS;
             this.saveNewGame();
+            this.currentGuess = new Guess(this.reference.child("guesses").push());
+            this.currentGuess.start();
         } else {
             Log.e(TAG, "A started game cannot be restarted.");
         }
@@ -106,28 +103,28 @@ public class Game implements GameI {
     }
 
     private void saveNewGame() {
+        this.reference = RedDb.instance().getReference("games").push();
         Beans.Game game = new Beans.Game(this.status, Timy.nowToString());
         this.reference.setValue(game);
     }
 
     public boolean isFinished() {
-        return this.wordCount >= 2000;
+        return this.wordCount >= Constants.getInstance().tries;
+    }
+
+    public void finish() {
+        this.status = NOT_PLAYING;
     }
 
     @Override
     public void onNewWord(Beans.Word word, String key) {
         this.view.setIsWordLoading(false);
         if (word != null) {
-            if (this.status == FIND_OBJECT) {
-                this.currentWordKey = key;
-                this.currentGuess = new Guess(word, this.reference.child("guesses").push());
-            } else if (this.status == LEARN_WORDS) {
-                if(this.currentGuess != null) this.currentGuess.endWithAnswer(true);
-                this.currentWordKey = key;
-                this.currentGuess = new Guess(word, this.reference.child("guesses").push());
-                this.currentGuess.start();
-                this.speakWord();
+            this.currentWordKey = key;
+            if (status == LEARN_WORDS){
+                this.currentGuess.saveWithWord(word.name);
             }
+            this.currentGuess = new Guess(word, this.reference.child("guesses").push());
             view.onWordObtained(word.name);
         } else {
             view.showMessage("Error");

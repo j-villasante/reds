@@ -22,6 +22,10 @@ public class Beans {
             this.isCorrect = isCorrect;
         }
 
+        public Guess(long elapsedTime) {
+            this.elapsedTime = elapsedTime;
+        }
+
         public Guess() {}
     }
 

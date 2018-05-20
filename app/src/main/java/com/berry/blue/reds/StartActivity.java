@@ -36,10 +36,6 @@ public class StartActivity extends Activity implements ViewStartI {
     @BindView(R.id.success_animation_view) LottieAnimationView successAnimationView;
     @BindView(R.id.error_animation_view) LottieAnimationView errorAnimationView;
 
-    // Fullscreen variables
-    private final Handler mHideHandler = new Handler();
-    private final Runnable mHideRunnable = this::hide;
-
     // Controllers
     private Game game;
     private boolean isWordLoading = false;
@@ -48,14 +44,12 @@ public class StartActivity extends Activity implements ViewStartI {
 
     // Click and touch variables
     private View.OnClickListener startSearchClickListener = (View view) -> {
-        this.game = new Game(this);
         this.mPlaySearchLayout.setVisibility(View.GONE);
         this.mPlayLearnLayout.setVisibility(View.GONE);
         this.game.startFindObject();
         this.enableNfcRead();
     };
     private View.OnClickListener startLearnClickListener = (View view) -> {
-        this.game = new Game(this);
         this.mPlaySearchLayout.setVisibility(View.GONE);
         this.mPlayLearnLayout.setVisibility(View.GONE);
         this.game.startLearnWords();
@@ -80,21 +74,23 @@ public class StartActivity extends Activity implements ViewStartI {
         mPlayLearnLayout.setOnClickListener(this.startLearnClickListener);
         tviWord.setOnClickListener(v -> game.speakWord());
 
+        this.game = new Game(this);
         this.nfcInit();
         this.animationsInit();
         this.speaking = Speaking.instance().init(this);
+        Constants.setup();
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        mHideHandler.postDelayed(mHideRunnable, 500);
+        this.hide();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mHideHandler.postDelayed(mHideRunnable, 500);
+        this.hide();
         if (game != null && game.hasStarted()) {
             this.enableNfcRead();
         }
@@ -110,6 +106,19 @@ public class StartActivity extends Activity implements ViewStartI {
     protected void onDestroy() {
         this.speaking.stop();
         super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (this.game.hasStarted()) {
+            if (!this.isAnimationRunning) {
+                this.mPlayLearnLayout.setVisibility(View.VISIBLE);
+                this.mPlaySearchLayout.setVisibility(View.VISIBLE);
+                this.tviWord.setVisibility(View.GONE);
+                this.disableNfcRead();
+            }
+            this.game.finish();
+        }
     }
 
     @Override
@@ -165,7 +174,9 @@ public class StartActivity extends Activity implements ViewStartI {
         this.setAnimationListener(successAnimationView, () -> {
             if (!isWordLoading) {
                 if (game.isFinished()) {
+                    this.game.finish();
                     this.mPlayLearnLayout.setVisibility(View.VISIBLE);
+                    this.mPlaySearchLayout.setVisibility(View.VISIBLE);
                     this.tviWord.setVisibility(View.GONE);
                     this.disableNfcRead();
                 } else {

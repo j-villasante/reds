@@ -4,6 +4,8 @@ import com.berry.blue.reds.fires.Beans;
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 class Guess {
@@ -18,6 +20,10 @@ class Guess {
         this.guessList = new ArrayList<>();
     }
 
+    Guess(DatabaseReference reference) {
+        this.reference = reference;
+    }
+
     void start() {
         this.startTime = System.currentTimeMillis();
     }
@@ -26,6 +32,16 @@ class Guess {
         long endTime = System.currentTimeMillis();
         guessList.add(new Beans.Guess(endTime - startTime, value));
         if (value) this.save();
+    }
+
+    void endForOne(){
+        long endTime = System.currentTimeMillis();
+        this.guessList = Collections.singletonList(new Beans.Guess(endTime - startTime, true));
+    }
+
+    public void saveWithWord(String word) {
+        this.word = word;
+        this.save();
     }
 
     private void save() {
