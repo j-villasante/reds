@@ -32,7 +32,7 @@ public class StartActivity extends Activity implements ViewStartI {
     @BindView(R.id.fullscreen_content) View mContentView;
     @BindView(R.id.rla_play_one_layout) View mPlaySearchLayout;
     @BindView(R.id.rla_play_two_layout) View mPlayLearnLayout;
-    @BindView(R.id.main_word_view) TextView tviWord;
+    @BindView(R.id.tvi_main_word) TextView tviWord;
     @BindView(R.id.success_animation_view) LottieAnimationView successAnimationView;
     @BindView(R.id.error_animation_view) LottieAnimationView errorAnimationView;
 
