@@ -17,11 +17,12 @@ public class Constants {
 
     private Constants() {}
 
-    public static void setup() {
+    public static void setup(Runnable onFinished) {
         RedDb.instance().getReference("constants").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 constants = dataSnapshot.getValue(Constants.class);
+                onFinished.run();
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -31,14 +32,6 @@ public class Constants {
     }
 
     public static Constants getInstance() {
-        if (constants == null) {
-            Log.e(TAG,  "This has not been setup or an error occurred while setting up.");
-            Constants constants = new Constants();
-            constants.tries = 10;
-            constants.category = "all";
-            return constants;
-        }
-        else
-            return constants;
+        return constants;
     }
 }

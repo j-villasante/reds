@@ -31,6 +31,7 @@ public class Beans {
 
     public static class Word {
         public String name;
+        public String category;
 
         public Word () {}
     }

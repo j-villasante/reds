@@ -12,6 +12,7 @@ import android.nfc.tech.NfcA;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -74,11 +75,12 @@ public class StartActivity extends Activity implements ViewStartI {
         mPlayLearnLayout.setOnClickListener(this.startLearnClickListener);
         tviWord.setOnClickListener(v -> game.speakWord());
 
-        this.game = new Game(this);
+        Constants.setup(() -> {
+            this.game = new Game(this);
+        });
         this.nfcInit();
         this.animationsInit();
         this.speaking = Speaking.instance().init(this);
-        Constants.setup();
     }
 
     @Override
@@ -94,6 +96,11 @@ public class StartActivity extends Activity implements ViewStartI {
         if (game != null && game.hasStarted()) {
             this.enableNfcRead();
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP || super.onKeyDown(keyCode, event);
     }
 
     @Override
