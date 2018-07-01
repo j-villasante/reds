@@ -44,4 +44,10 @@ class Word {
         i++;
         if (i >= 16) i = 0;
     }
+
+    void getWord(String key) {
+        Beans.Word word = new Beans.Word();
+        word.name = sample[i][0];
+        view.onNewWord(word, sample[i][1]);
+    }
 }

@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
+import android.media.MediaPlayer;
 import android.nfc.NfcAdapter;
 import android.nfc.tech.NfcA;
 import android.os.Bundle;
@@ -145,11 +146,15 @@ public class StartActivity extends Activity implements ViewStartI {
 
     @Override
     public void startSuccessAnimation() {
+        MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.win);
+        mediaPlayer.start();
         this.startGameAnimation(successAnimationView);
     }
 
     @Override
     public void startErrorAnimation() {
+        MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.aww_disappointed);
+        mediaPlayer.start();
         this.startGameAnimation(errorAnimationView);
     }
 

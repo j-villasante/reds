@@ -15,7 +15,8 @@
             android:name=".MockedStartActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
-            android:theme="@style/FullscreenTheme"/>
+            android:theme="@style/FullscreenTheme"
+            android:screenOrientation="landscape"/>
         <activity android:name=".MockedSplashActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>
